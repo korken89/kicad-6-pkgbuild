@@ -10,7 +10,7 @@ arch=('x86_64')
 #url="http://iut-tice.ujf-grenoble.fr/kicad/"
 url="http://kicad-pcb.org/"
 license=('GPL')
-depends=('wxgtk3' 'python' 'boost-libs' 'glew' 'curl' 'glm' 'ngspice' 'opencascade' 'python-wxpython' 'libcloudproviders')
+depends=('glew' 'wxgtk3' 'desktop-file-utils' 'boost-libs' 'python' 'glm' 'curl' 'swig' 'python-wxpython' 'opencascade' 'ngspice>=27')
 # can ngspice/opencascade be an optdep?
 # opencascade vs community edition?
 makedepends=('cmake' 'zlib' 'mesa' 'boost' 'swig')
@@ -29,19 +29,15 @@ build() {
 
   mkdir -p build/Release
   cd build/Release
-  cmake ../.. -DCMAKE_BUILD_TYPE=Release    \
-              -DCMAKE_INSTALL_PREFIX=/usr   \
-              -DCMAKE_INSTALL_LIBDIR=lib    \
-              -DKICAD_USE_OCE=OFF           \
-              -DKICAD_USE_OCC=ON            \
-              -DKICAD_SCRIPTING=ON          \
-              -DKICAD_SCRIPTING_PYTHON3=ON  \
-              -DKICAD_SCRIPTING_MODULES=ON  \
+
+  cmake ../.. -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_INSTALL_PREFIX=/usr \
+              -DCMAKE_INSTALL_LIBDIR=lib \
+              -DKICAD_USE_OCC=ON \
               -DKICAD_SCRIPTING_WXPYTHON=ON \
-              -DKICAD_SCRIPTING_ACTION_MENU=ON \
-              -DKICAD_SCRIPTING_WXPYTHON_PHOENIX=ON \
               -DwxWidgets_CONFIG_EXECUTABLE=/usr/bin/wx-config-gtk3 \
-              -DBUILD_GITHUB_PLUGIN=ON
+              -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold \
+
   make
 }
 
