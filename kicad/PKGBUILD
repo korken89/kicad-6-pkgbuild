@@ -1,0 +1,55 @@
+# Maintainer: Kyle Keen <keenerd@gmail.com>
+# Contributor: Marq Schneider <queueRAM@gmail.com>
+# Contributor: Nick Østergaard
+
+pkgname=kicad
+pkgver=6.0.0
+pkgrel=1
+pkgdesc="Electronic schematic and printed circuit board (PCB) design tools"
+arch=('x86_64')
+#url="http://iut-tice.ujf-grenoble.fr/kicad/"
+url="http://kicad-pcb.org/"
+license=('GPL')
+depends=('wxgtk3' 'python' 'boost-libs' 'glew' 'curl' 'glm' 'ngspice' 'opencascade' 'python-wxpython' 'libcloudproviders')
+# can ngspice/opencascade be an optdep?
+# opencascade vs community edition?
+makedepends=('cmake' 'zlib' 'mesa' 'boost' 'swig')
+optdepends=('kicad-library: for footprints and symbols'
+            'kicad-library-3d: for 3d models of components')
+source=("https://gitlab.com/kicad/code/kicad/-/archive/$pkgver/kicad-$pkgver.tar.gz")
+sha512sums=('1cadf59cfa85c5bbeb86f968ced896eff16c330e498497bf58826a58a59dfb83989422d660f7230d7921eeeda709d1ff10b50d4f842a36e50d44bf9017360b50')
+
+prepare() {
+  cd "$srcdir/kicad-$pkgver"
+  #find -name '*.py' -exec sed -i '1s/python$/&2/' {} +
+}
+
+build() {
+  cd "$srcdir/kicad-$pkgver"
+
+  mkdir -p build/Release
+  cd build/Release
+  cmake ../.. -DCMAKE_BUILD_TYPE=Release    \
+              -DCMAKE_INSTALL_PREFIX=/usr   \
+              -DCMAKE_INSTALL_LIBDIR=lib    \
+              -DKICAD_USE_OCE=OFF           \
+              -DKICAD_USE_OCC=ON            \
+              -DKICAD_SCRIPTING=ON          \
+              -DKICAD_SCRIPTING_PYTHON3=ON  \
+              -DKICAD_SCRIPTING_MODULES=ON  \
+              -DKICAD_SCRIPTING_WXPYTHON=ON \
+              -DKICAD_SCRIPTING_ACTION_MENU=ON \
+              -DKICAD_SCRIPTING_WXPYTHON_PHOENIX=ON \
+              -DwxWidgets_CONFIG_EXECUTABLE=/usr/bin/wx-config-gtk3 \
+              -DBUILD_GITHUB_PLUGIN=ON
+  make
+}
+
+package() {
+  cd "$srcdir/kicad-$pkgver/build/Release"
+
+  make DESTDIR="$pkgdir" install
+
+  # copy updated linux icons
+  #cp -r -n "$srcdir/$pkgname-icons/resources/linux/mime/icons" "$pkgdir/usr/share/"
+}
